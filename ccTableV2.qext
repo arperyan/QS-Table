@@ -1,0 +1,21 @@
+{
+"name" : "Calibrate Table V2",
+"description" : "Calibrate Table V2",
+"icon" : "table",
+"type" : "visualization",
+"version": "0.1.0",
+"author": "Mark Fereday",
+"email": "markfereday@fereday.com",
+"homepage": "fereday.com",
+"icon": "table",
+"isLibraryItem": true,
+"isThirdParty": true,
+"keywords": "qlik-sense, visualization",
+"license": "2017 © CC Ltd. - All rights reserved.",
+"preview": "ccTableV2.png",
+"previewIconURL": "../extensions/ccTableV2/ccTable.png",
+"repository": "",
+"tc": "",
+"template": "",
+"templateIconClassName": ""
+}
