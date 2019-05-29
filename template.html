@@ -1,257 +1,321 @@
 <div id="ccTable_{{vm.qInfo.qId}}" class="ccExtensionContainer" qv-extension style="height:100%;width:100%;">
-  <div class="scrollbar-animation scrollbar-track vertical" ng-if="vm.virtualScroll.showScroll" ng-style="{'height': vm.virtualScroll.sbHeightpx, 'top': vm.virtualScroll.sbToppx}">
-    <div id="sbHitArea_{{vm.qInfo.qId}}" ng-mousedown="scrollMouseDown($event, false)" ng-mouseup="scrollMouseUp($event)" ng-mousemove="scrollMouseMove($event)" ng-style="trackHitAreaStyle" class="scrollbar-hitarea">
+    <div class="scrollbar-animation scrollbar-track vertical" 
+            ng-if="vm.virtualScroll.showScroll"
+            ng-style="{'height': vm.virtualScroll.sbHeightpx, 'top': vm.virtualScroll.sbToppx}">
+        <div id="sbHitArea_{{vm.qInfo.qId}}" ng-mousedown="scrollMouseDown($event, false)" ng-mouseup="scrollMouseUp($event)" ng-mousemove="scrollMouseMove($event)"
+                ng-style="trackHitAreaStyle" class="scrollbar-hitarea">
+        </div>
+        <div class="scrollbar-thumb" ng-mousedown="scrollMouseDown($event, true)" ng-mouseup="scrollMouseUp($event)" 
+                ng-style="{'height': vm.virtualScroll.sbThumbHpx, 'top': vm.virtualScroll.sbThumbYpx}">
+        </div>
     </div>
-    <div class="scrollbar-thumb" ng-mousedown="scrollMouseDown($event, true)" ng-mouseup="scrollMouseUp($event)" ng-style="{'height': vm.virtualScroll.sbThumbHpx, 'top': vm.virtualScroll.sbThumbYpx}">
+    <div class="ccTableContainer">
+        <table class="tableSection" qva-delegated-activate="true;true">
+            <thead id="ccTableHead_{{vm.qInfo.qId}}">
+                <tr ng-if="vm.props.header.showHeader" ng-style="headerStyle()">
+                    <th draggable="true" class="ccTableCell ccHdrCell" data-index="{{$index}}" ng-class="headerCellClass(hdr, false)" ng-style="headerCellStyle(hdr)" ng-if="showHeaderColumn(hdr)" 
+                            ng-click="headerClicked($event, hdr)" 
+                            ng-repeat="hdr in columnHeaders | orderBy:orderByColumn track by $index">
+                        <div class="ccHeaderCell">
+                            <div class="ccDataCell" ng-class="{searchableCol: hdr.isSearchable}" ng-bind="hdr.headerText"></div>
+                            <i ng-if="hdr.isOrderedBy" 
+                                    ng-class="{'qv-st-sorting-indicator lui-icon lui-icon--small lui-icon--triangle-top': hdr.qSortIndicator === 'A',
+                                        'qv-st-sorting-indicator lui-icon lui-icon--small lui-icon--triangle-bottom': hdr.qSortIndicator === 'D'}">
+                            </i>
+                            <div class="colSearchIconContainer" search-col="" ng-mouseup="searchHeader($event, hdr)">
+                                <i ng-if="hdr.isSearchable" search-col="" class="columnSearchIcon lui-icon lui-icon--search" title="Search"></i>
+                            </div>
+                        </div>                    
+                    </th>
+                    <!--<th class="ccTableCell" ng-class="headerCellClass(mea, false)" ng-style="headerCellStyle(mea)" ng-if="showMeasureColumn(mea)" 
+                            ng-click="headerClicked($event, $index + vm.qHyperCube.qDimensionInfo.length, mea)" ng-repeat="mea in vm.qHyperCube.qMeasureInfo">
+                        <div class="ccHeaderCell">
+                            <div class="ccDataCell" ng-bind="mea.headerText"></div>
+                            <i ng-if="mea.isOrderedBy" 
+                                ng-class="{'qv-st-sorting-indicator lui-icon lui-icon--small lui-icon--triangle-top': mea.qSortIndicator === 'A',
+                                        'qv-st-sorting-indicator lui-icon lui-icon--small lui-icon--triangle-bottom': mea.qSortIndicator === 'D'}">
+                            </i>
+                        </div>
+                    </th>-->
+                </tr>
+                <tr class="totalRow" ng-style="totalsRowStyle()" ng-if="showTotalRow('top')">
+                    <td ng-if="tot.style.showColumn"
+                                ng-class="{ccTableCell: true, cellBorderRight: tot.style.showBorder}" 
+                                ng-style="{'width': tot.style.width,
+                                        'max-width': tot.style.maxWidth,
+                                        'text-align': tot.style.textAlign,
+                                        'color': tot.style.color,
+                                        'background-color': tot.style.backgroundColor}" 
+                                ng-repeat="tot in totalsRow | orderBy:orderByColumn track by $index">
+                        <div class="ccHeaderCell">
+                            <div ng-if="$index==0" class="ccDataCell ccTotalCell"><span ng-bind="vm.props.totals.totalsLabel"></span></div>
+                            <div class="ccDataCell ccTotalCell" ng-show="showMeasureTotalValue(tot)" ng-bind="tot.qText"></div>
+                        </div>
+                    </td>
+                    <!--<td class="ccTableCell" ng-class="{cellBorderRight: meaCellClassByIndex($index)}" ng-if="showMeaColumnByIndex($index)" 
+                            ng-style="measureCellStyle($index)" ng-repeat="tot in vm.qHyperCube.qGrandTotalRow track by $index">
+                        <div class="ccHeaderCell">
+                            <div class="ccDataCell ccTotalCell" ng-show="showMeasureTotalValue($index)" ng-bind="tot.qText"></div>
+                        </div>
+                    </td>-->
+                </tr>            
+            </thead>
+            <tfoot id="ccTableFoot_{{vm.qInfo.qId}}" ng-if="showTotalRow('bottom')">
+                <tr class="totalRowBottom" ng-style="totalsRowStyle()">
+                    <td ng-if="tot.style.showColumn"
+                                ng-class="{ccTableCell: true, cellBorderRight: tot.style.showBorder}" 
+                                ng-style="{'width': tot.style.width,
+                                        'max-width': tot.style.maxWidth,
+                                        'text-align': tot.style.textAlign,
+                                        'color': tot.style.color,
+                                        'background-color': tot.style.backgroundColor}" 
+                                ng-repeat="tot in totalsRow | orderBy:orderByColumn track by $index">
+                        <div class="ccHeaderCell">
+                            <div ng-if="$index==0" class="ccDataCell ccTotalCell"><span ng-bind="vm.props.totals.totalsLabel"></span></div>
+                            <div ng-if="$index!=0" class="ccDataCell ccTotalCell" ng-show="showMeasureTotalValue(tot)" ng-bind="tot.qText"></div>
+                        </div>
+                    </td>                    
+                    <!--<td class="ccTableCell" ng-class="headerCellClass(dim, true)" ng-style="headerCellStyle(dim)" 
+                                ng-if="showDimColumnByIndex($index)"
+                                ng-repeat="dim in vm.qHyperCube.qDimensionInfo track by $index">
+                        <div class="ccDataCell ccTotalCell"><span ng-if="$index==0" ng-bind="vm.props.totals.totalsLabel"></span></div>
+                    </td>
+                    <td class="ccTableCell" ng-class="meaCellClassByIndex($index)" ng-if="showMeaColumnByIndex($index)" ng-style="measureCellStyle($index)" 
+                                ng-repeat="tot in vm.qHyperCube.qGrandTotalRow track by $index">
+                        <div class="ccDataCell ccTotalCell" ng-show="showMeasureTotalValue($index)" ng-bind="tot.qText"></div>
+                    </td>-->
+                </tr>             
+            </tfoot>        
+            <tbody id="ccTableBody_{{vm.qInfo.qId}}">
+                <tr class="ccTableRow ccTableRowHighLight_{{vm.qInfo.qId}}"
+                                ng-class="{rowHighlight: vm.props.rows.highlightRows}"
+                                ng-style="{
+                                        'text-align': row.style.textAlign,
+                                        'color': row.style.color,
+                                        'background-color': row.style.backgroundColor,
+                                        'font-weight': row.style.fontWeight,
+                                        'text-decoration': row.style.textDecoration,
+                                        'border-bottom': row.style.borderBottom,
+                                        'font-style': row.style.fontStyle}"
+                                ng-repeat="row in vm.grid track by getRowTrackBy(row)">
+                    <td ng-class="{cellBorderRight: col.style.showBorder,
+                                         rowHighlight: vm.props.rows.highlightRows,
+                                         selectable: col.style.selectable}" 
+                                ng-style="{'width': col.style.width,
+                                        'max-width': col.style.maxWidth,
+                                        'text-align': col.style.textAlign,
+                                        'color': col.style.color,
+                                        'background-color': col.style.backgroundColor}" 
+                                ng-if="col.style.showColumn" 
+                                ng-click="cellClick($event, col, row)" 
+                                ng-repeat="col in row | orderBy:orderByColumn track by $index">
+                        <div ng-if="col.style.cellRepresentation == 'txt'" class="ccDataCell" ng-bind-html="col.qText">
+                        </div>
+                        <div ng-if="col.style.cellRepresentation == 'pb'" class="ccDataCell progressValue" 
+                            ng-style="{'width': col.pbStyle.width, 'backgroundColor': col.pbStyle.backgroundColor}">
+                            <span ng-bind-html="col.progressBarDisplayValue"></span>
+                        </div>                    
+                    </td>
+                </tr>                
+            </tbody>
+        </table>
     </div>
-  </div>
-  <div class="ccTableContainer">
-    <table class="tableSection" qva-delegated-activate="true;true">
-      <thead id="ccTableHead_{{vm.qInfo.qId}}">
-        <tr ng-if="vm.props.header.showHeader" ng-style="headerStyle()">
-          <th class="ccTableCell" ng-class="headerCellClass(dim, false)" ng-style="headerCellStyle(dim)" ng-if="showDimensionColumn(dim)" ng-click="headerClicked($event, $index, dim)" ng-repeat="dim in vm.qHyperCube.qDimensionInfo">
-            <div class="ccHeaderCell">
-              <div class="ccDataCell" ng-class="{searchableCol: dim.isSearchable}" ng-bind="dim.headerText"></div>
-                <i ng-if="dim.isOrderedBy" ng-class="{'qv-st-sorting-indicator lui-icon lui-icon--small lui-icon--triangle-top': dim.qSortIndicator === 'A',
-                  'qv-st-sorting-indicator lui-icon lui-icon--small lui-icon--triangle-bottom': dim.qSortIndicator === 'D'}">
-                </i>
-              <div class="colSearchIconContainer" search-col="" ng-mouseup="searchHeader($event, dim)">
-                <i ng-if="dim.isSearchable" search-col="" class="columnSearchIcon lui-icon lui-icon--search" title="Search"></i>
-              </div>
-            </div>
-          </th>
-          <th class="ccTableCell" ng-class="headerCellClass(mea, false)" ng-style="headerCellStyle(mea)" ng-if="showMeasureColumn(mea)" ng-click="headerClicked($event, $index + vm.qHyperCube.qDimensionInfo.length, mea)" ng-repeat="mea in vm.qHyperCube.qMeasureInfo">
-            <div class="ccHeaderCell">
-            <div class="ccDataCell" ng-bind="mea.headerText"></div>
-              <i ng-if="mea.isOrderedBy" ng-class="{'qv-st-sorting-indicator lui-icon lui-icon--small lui-icon--triangle-top': mea.qSortIndicator === 'A', 'qv-st-sorting-indicator lui-icon lui-icon--small lui-icon--triangle-bottom': mea.qSortIndicator === 'D'}">
-              </i>
-            </div>
-          </th>
-        </tr>
-        <tr class="totalRow" ng-style="totalsRowStyle()" ng-if="showTotalRow('top')">
-          <td class="ccTableCell" ng-class="headerCellClass(dim, true)" ng-style="headerCellStyle(dim)" ng-if="showDimColumnByIndex($index)" ng-repeat="dim in vm.qHyperCube.qDimensionInfo track by $index">
-            <div class="ccHeaderCell">
-              <div class="ccDataCell ccTotalCell">
-                <span ng-if="$index==0" ng-bind="vm.props.totals.totalsLabel"></span>
-              </div>
-            </div>
-          </td>
-          <td class="ccTableCell" ng-class="{cellBorderRight: meaCellClassByIndex($index)}" ng-if="showMeaColumnByIndex($index)" ng-style="measureCellStyle($index)" ng-repeat="tot in vm.qHyperCube.qGrandTotalRow track by $index">
-            <div class="ccHeaderCell">
-              <div class="ccDataCell ccTotalCell" ng-show="showMeasureTotalValue($index)" ng-bind="tot.qText"></div>
-            </div>
-          </td>
-        </tr>
-      </thead>
-      <tfoot id="ccTableFoot_{{vm.qInfo.qId}}" ng-if="showTotalRow('bottom')">
-        <tr class="totalRowBottom" ng-style="totalsRowStyle()">
-          <td class="ccTableCell" ng-class="headerCellClass(dim, true)" ng-style="headerCellStyle(dim)" ng-if="showDimColumnByIndex($index)" ng-repeat="dim in vm.qHyperCube.qDimensionInfo track by $index">
-            <div class="ccDataCell ccTotalCell">
-              <span ng-if="$index==0" ng-bind="vm.props.totals.totalsLabel"></span>
-            </div>
-          </td>
-          <td class="ccTableCell" ng-class="meaCellClassByIndex($index)" ng-if="showMeaColumnByIndex($index)" ng-style="measureCellStyle($index)" ng-repeat="tot in vm.qHyperCube.qGrandTotalRow track by $index">
-            <div class="ccDataCell ccTotalCell" ng-show="showMeasureTotalValue($index)" ng-bind="tot.qText"></div>
-          </td>
-        </tr>
-      </tfoot>
-      <tbody id="ccTableBody_{{vm.qInfo.qId}}">
-        <tr class="ccTableRow ccTableRowHighLight_{{vm.qInfo.qId}}" ng-class="{rowHighlight: vm.props.rows.highlightRows}" ng-style="{'text-align': row.style.textAlign,
-                'color': row.style.color,
-                'background-color': row.style.backgroundColor,
-                'font-weight': row.style.fontWeight,
-                'text-decoration': row.style.textDecoration,
-                'border-bottom': row.style.borderBottom,
-                'font-style': row.style.fontStyle}"
-                ng-repeat="row in vm.grid track by getRowTrackBy(row)">
-          <td ng-class="{cellBorderRight: col.style.showBorder,
-                 rowHighlight: vm.props.rows.highlightRows,
-                 selectable: $index < vm.qHyperCube.qDimensionInfo.length}"
-              ng-style="{'width': col.style.width,
-                'max-width': col.style.maxWidth,
-                'text-align': col.style.textAlign,
-                'color': col.style.color,
-                'background-color': col.style.backgroundColor}"
-                ng-if="col.style.showColumn" data-dimension="{{$index}}" data-value="{{col.qElemNumber}}" ng-click="cellClick($event, col.qElemNumber, row)" ng-repeat="col in row track by $index">
-            <div ng-if="col.style.cellRepresentation == 'txt'" class="ccDataCell" ng-bind-html="col.qText">
-            </div>
-            <div ng-if="col.style.cellRepresentation == 'pb'" class="ccDataCell progressValue" ng-style="{'width': col.pbStyle.width, 'backgroundColor': col.pbStyle.backgroundColor}">
-              <span ng-bind-html="col.progressBarDisplayValue"></span>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
 </div>
-
 <style>
-.ccExtensionContainer {
-    position: relative;
-}
-.ccTableContainer {
-    position: relative;
-    overflow-x: auto;
-    overflow-y: hidden;
-    height: 100%;
-}
-.ccExtensionContainer td.selectable.selected {
-    background-color: #86DB86;
-    border-bottom: 1px solid #BAEBBA;
-    color: #FFFFFF;
-}
-.searchableCol {
-    width: calc(100% - 20px);
-}
-.colSearchIconContainer {
-    position: absolute;
-    right: 0;
-    bottom: 0px;
-    cursor: pointer;
-    width: 20px;
-    text-align: center;
-}
-.columnSearchIcon {
-    font-size: 12px;
-}
-.columnSearchIcon.lui-icon--search:before {
-    position: relative;
-    font-size: 12px;
-    content: "F";
-}
-.totalRow {
-    border-bottom: 1px #A6A6A6 solid;
-}
-.totalRowBottom {
-    border-top: 1px #A6A6A6 solid;
-}
-.ccTotalCell {
-    font-weight: bold;
-}
-.ccHeaderCell {
-    position: relative;
-}
-/*.dimSelection {
-background-color: red;
-}*/
+    .ccExtensionContainer {
+        position: relative;
+    }
 
-.ccDataCell {
-    white-space: normal;
-    word-wrap: normal;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-.ccTableCell {
-    /*display: table-cell;*/
-    
-    white-space: normal;
-    word-wrap: normal;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    /*padding: .4615em .61538462em .4615em .30769231em;  */
-}
-.cellBorderRight {
-    border-right-width: 1px;
-    border-right-style: solid;
-    border-right-color: #F2F2F2;
-}
-/*.cellBorderRightClear {
-border-right-width: 1px;
-border-right-style: solid;
-border-right-color: transparent;
-}*/
+    .ccTableContainer {
+        position: relative;
+        overflow-x: auto;
+        overflow-y: hidden;
+        height: 100%;
+    }
 
-.ccTableCell:last-of-type {
-    border-right: none;
-}
-table.tableSection {
-    display: table;
-    width: 100%;
-    /*table-layout: fixed;*/
-}
-table.tableSection thead {
-    overflow-y: scroll;
-    display: table;
-    table-layout: fixed;
-    width: calc(100% - 8px);
-    /* assuming scrollbar width as 8px */
-}
-table.tableSection th {
-    vertical-align: bottom;
-    /*padding: .4615em .61538462em .4615em .30769231em!important;*/
-    
-    padding: .4615em .30769231em .4615em .30769231em!important;
-}
-table.tableSection td {
-    padding: .4615em .30769231em .4615em .30769231em!important;
-}
-table.tableSection tbody {
-    width: 100%;
-    overflow-x: hidden;
-    overflow-y: hidden;
-    height: 150px;
-    display: block;
-}
-table.tableSection tr {
-    width: 100%;
-    text-align: left;
-    display: table;
-    table-layout: fixed;
-}
-table.tableSection .progressValue {
-    min-width: 1px;
-}
-table.tableSection .progressValue > span {
-    padding-right: 3px;
-}
-.qv-object-ccTableV2 .lui-icon--triangle-top:before {
-    content: "R";
-    top: 2px;
-    left: 0;
-    right: 0;
-}
-.qv-object-ccTableV2 .lui-icon--triangle-bottom:before {
-    content: "S";
-    top: 2px;
-    left: 0;
-    right: 0;
-}
-.qv-object-ccTableV2 .qv-st-sorting-indicator:before {
-    position: absolute;
-}
-.scrollbar-track {
-    position: absolute;
-    z-index: 2;
-    background: rgba(1, 1, 1, 0.1);
-    opacity: 0.8;
-    border-radius: 4px;
-    background-clip: padding-box;
-    width: 8px;
-    right: 0;
-}
-.scrollbar-hitarea {
-    position: absolute;
-    z-index: 1;
-    right: 0px;
-    width: 8px;
-}
-.scrollbar-track.vertical .scrollbar-hitarea {
-    top: 0px;
-    height: 100%;
-}
-.scrollbar-thumb {
-    position: relative;
-    z-index: 2;
-    background: rgba(50, 50, 50, 0.4);
-    -webkit-border-radius: 4px;
-    -webkit-background-clip: padding-box;
-    -moz-border-radius: 4px;
-    -moz-background-clip: padding;
-    border-radius: 4px;
-    background-clip: padding-box;
-}
-.scrollbar-track.vertical .scrollbar-thumb {
-    right: 0px;
-    width: 100%;
-}
+    .ccExtensionContainer td.selectable.selected {
+        background-color: #86DB86;
+        border-bottom: 1px solid #BAEBBA;
+        color: #FFFFFF;
+    }
+
+    .searchableCol {
+        width: calc(100% - 20px);
+    }
+
+    .colSearchIconContainer {
+        position: absolute;
+        right: 0;
+        bottom: 0px;
+        cursor: pointer;
+        width: 20px;
+        text-align: center;
+    }
+
+    .columnSearchIcon {
+        font-size: 12px;
+    }
+
+    .columnSearchIcon.lui-icon--search:before {
+        position: relative;
+        font-size: 12px;
+        content: "F";
+    }
+
+    .totalRow {
+        border-bottom: 1px #A6A6A6 solid;
+    }
+
+    .totalRowBottom {
+        border-top: 1px #A6A6A6 solid;
+    }
+
+    .ccTotalCell {
+        font-weight: bold;
+    }
+
+    .ccHeaderCell {
+        position: relative;
+    }
+
+    /*.dimSelection {
+        background-color: red;
+    }*/
+
+    .ccDataCell {
+        white-space: normal;
+        word-wrap: normal;
+        overflow: hidden;
+        text-overflow: ellipsis;          
+    }
+
+    .ccTableCell {
+        /*display: table-cell;*/
+        white-space: normal;
+        word-wrap: normal;
+        overflow: hidden;
+        text-overflow: ellipsis;      
+        /*padding: .4615em .61538462em .4615em .30769231em;  */
+    }
+
+    .cellBorderRight {
+        border-right-width: 1px;
+        border-right-style: solid;
+        border-right-color: #F2F2F2;        
+    }
+
+    /*.cellBorderRightClear {
+        border-right-width: 1px;
+        border-right-style: solid;
+        border-right-color: transparent;        
+    }    */
+
+    .ccTableCell:last-of-type {
+        border-right: none;
+    }
+
+    table.tableSection {
+        display: table;
+        width: 100%;
+        /*table-layout: fixed;*/
+    }
+
+    table.tableSection thead {
+        overflow-y: scroll;
+        display: table;
+        table-layout: fixed;
+        width: calc(100% - 8px); /* assuming scrollbar width as 8px */
+    }
+
+    table.tableSection th {
+        vertical-align: bottom;
+        /*padding: .4615em .61538462em .4615em .30769231em!important;        */
+        padding: .4615em .30769231em .4615em .30769231em!important;   
+    }
+
+    table.tableSection td {
+        padding: .4615em .30769231em .4615em .30769231em!important;        
+    }    
+
+    table.tableSection tbody {
+        width: 100%;
+        overflow-x: hidden;
+        overflow-y: hidden;
+        height: 150px;
+        display: block;
+    }
+
+    table.tableSection tr {
+        width: 100%;
+        text-align: left;
+        display: table;
+        table-layout: fixed;
+    }
+
+    table.tableSection .progressValue {
+        min-width: 1px;
+    }
+
+    table.tableSection .progressValue > span {
+        padding-right: 3px;
+    }
+
+    .qv-object-ccTableV3 .lui-icon--triangle-top:before {
+        content: "R";
+        top: 2px;
+        left: 0;
+        right: 0;        
+    }
+
+    .qv-object-ccTableV3 .lui-icon--triangle-bottom:before {
+        content: "S";
+        top: 2px;
+        left: 0;
+        right: 0;
+    }
+
+    .qv-object-ccTableV3 .qv-st-sorting-indicator:before {
+        position: absolute;
+    }
+
+    .scrollbar-track {
+        position: absolute;
+        z-index: 2;
+        background: rgba(1, 1, 1, 0.1);
+        opacity: 0.8;
+        border-radius: 4px;
+        background-clip: padding-box;
+        width: 8px;
+        right: 0;
+    }
+
+    .scrollbar-hitarea {
+        position: absolute;
+        z-index: 1;
+        right: 0px;
+        width: 8px;
+    }
+
+    .scrollbar-track.vertical .scrollbar-hitarea {
+        top: 0px;
+        height: 100%;
+    }
+
+
+    .scrollbar-thumb {
+        position: relative;
+        z-index: 2;
+        background: rgba(50, 50, 50, 0.4);
+        -webkit-border-radius: 4px;
+        -webkit-background-clip: padding-box;
+        -moz-border-radius: 4px;
+        -moz-background-clip: padding;
+        border-radius: 4px;
+        background-clip: padding-box;
+    }
+
+    .scrollbar-track.vertical .scrollbar-thumb {
+        right: 0px;
+        width: 100%;
+    }    
 </style>
